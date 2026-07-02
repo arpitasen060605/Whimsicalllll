@@ -42,6 +42,7 @@ let state = { creator: "", title: "", desc: "", mood: "dreamy", moodEmoji: "☁�
 let roomCards = {};
 let currentRoom = null;
 let currentUser = null;
+let editingCardId = null; // null = creating a new card, otherwise editing this existing one
 
 const loginScreen = document.getElementById("loginScreen");
 const googleSignInBtn = document.getElementById("googleSignInBtn");
@@ -55,7 +56,7 @@ const joinCodeInput = document.getElementById("joinCodeInput");
 const joinRoomBtn = document.getElementById("joinRoomBtn");
 const roomCodeDisplay = document.getElementById("roomCodeDisplay");
 const copyCodeBtn = document.getElementById("copyCodeBtn");
-const downloadBtn = document.getElementById("downloadBtn");
+const newCardBtn = document.getElementById("newCardBtn");
 const wallContainer = document.getElementById("wallContainer");
 
 const modalOverlay = document.getElementById("modalOverlay");
@@ -75,22 +76,16 @@ googleSignInBtn.addEventListener("click", () => {
     alert("sign-in failed, try again");
   });
 });
-signOutBtn.addEventListener("click", () => {
-  auth.signOut();
-});
+signOutBtn.addEventListener("click", () => auth.signOut());
 
 auth.onAuthStateChanged((user) => {
   currentUser = user;
   if (user) {
     loginScreen.classList.add("hidden");
     state.creator = user.displayName || "friend";
-
     const savedRoom = localStorage.getItem("tunecanvas_room");
-    if (savedRoom) {
-      enterRoom(savedRoom);
-    } else {
-      landingScreen.classList.remove("hidden");
-    }
+    if (savedRoom) enterRoom(savedRoom);
+    else landingScreen.classList.remove("hidden");
   } else {
     loginScreen.classList.remove("hidden");
     landingScreen.classList.add("hidden");
@@ -123,9 +118,17 @@ function cardTemplate(id, data, isMine) {
     </button>`;
   }).join("");
 
+  const actionsHtml = isMine ? `
+    <div class="card-actions">
+      <button class="icon-btn" data-edit="${id}" title="edit">✎</button>
+      <button class="icon-btn" data-dl="${id}" title="download">⬇</button>
+      <button class="icon-btn delete" data-del="${id}" title="delete">🗑</button>
+    </div>
+  ` : "";
+
   return `
     <div class="card" data-card-id="${id}" style="--mood-base:${theme.base};--mood-accent:${theme.accent};--rot:${rot}deg">
-      ${isMine ? `<button class="edit-btn" data-edit="${id}" title="edit card">✎</button>` : ""}
+      ${actionsHtml}
       <div class="card-header">
         <span class="card-mood">${data.moodEmoji || ""} ${escapeHtml(data.mood || "")}</span>
         <span class="card-creator">by ${escapeHtml(data.creator || "someone")}</span>
@@ -142,30 +145,24 @@ function cardTemplate(id, data, isMine) {
   `;
 }
 
-function emptyTile() {
-  return `
-    <div class="card empty-card">
-      <p class="empty-card-text">you haven't added a card yet</p>
-      <button id="createCardBtn" class="landing-btn primary">+ create your card</button>
-    </div>
-  `;
-}
-
 function renderWall() {
-  const myId = currentUser ? currentUser.uid : null;
-  let html = "";
-  if (!myId || !roomCards[myId]) html += emptyTile();
-  Object.entries(roomCards).forEach(([id, data]) => {
-    html += cardTemplate(id, data, id === myId);
-  });
+  const myUid = currentUser ? currentUser.uid : null;
+  const html = Object.entries(roomCards)
+    .map(([id, data]) => cardTemplate(id, data, data.ownerUid === myUid))
+    .join("");
   wallContainer.innerHTML = html;
 }
 
-wallContainer.addEventListener("click", (e) => {
-  if (e.target.closest("[data-edit]") || e.target.id === "createCardBtn") {
-    openEditModal();
-    return;
-  }
+wallContainer.addEventListener("click", async (e) => {
+  const editBtn = e.target.closest("[data-edit]");
+  if (editBtn) { openEditModal(editBtn.dataset.edit); return; }
+
+  const delBtn = e.target.closest("[data-del]");
+  if (delBtn) { deleteCard(delBtn.dataset.del); return; }
+
+  const dlBtn = e.target.closest("[data-dl]");
+  if (dlBtn) { downloadCard(dlBtn.dataset.dl); return; }
+
   const reactBtn = e.target.closest("[data-react]");
   if (reactBtn) toggleReaction(reactBtn.dataset.card, reactBtn.dataset.react);
 });
@@ -179,10 +176,37 @@ function toggleReaction(cardId, emoji) {
   else db.ref(path).set(true);
 }
 
-// ── Edit modal ──
-function openEditModal() {
-  const myId = currentUser ? currentUser.uid : null;
-  const existing = myId ? roomCards[myId] : null;
+function deleteCard(cardId) {
+  if (!confirm("Delete this playlist card? This can't be undone.")) return;
+  db.ref(`rooms/${currentRoom}/cards/${cardId}`).remove();
+}
+
+async function downloadCard(cardId) {
+  const el = document.querySelector(`[data-card-id="${cardId}"]`);
+  if (!el) return;
+  try {
+    const canvas = await html2canvas(el, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      ignoreElements: (node) => node.classList &&
+        (node.classList.contains("card-actions") || node.classList.contains("reactions"))
+    });
+    const title = (roomCards[cardId] && roomCards[cardId].title) || "tunecanvas-card";
+    const link = document.createElement("a");
+    link.download = `${title.replace(/\s+/g, "-").toLowerCase()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (err) {
+    console.error("download failed:", err);
+    alert("couldn't save the image, try again");
+  }
+}
+
+// ── Edit / create modal ──
+function openEditModal(cardId) {
+  editingCardId = cardId || null;
+  const existing = cardId ? roomCards[cardId] : null;
+
   state = {
     creator: currentUser.displayName || "friend",
     title: existing ? existing.title || "" : "",
@@ -191,6 +215,7 @@ function openEditModal() {
     moodEmoji: existing ? existing.moodEmoji || "☁️" : "☁️",
     songs: existing && existing.songs && existing.songs.length ? existing.songs : [{ title: "", artist: "" }]
   };
+
   inputCreator.value = state.creator;
   inputTitle.value = state.title;
   inputDesc.value = state.desc;
@@ -198,6 +223,7 @@ function openEditModal() {
   renderSongRows();
   modalOverlay.classList.add("open");
 }
+newCardBtn.addEventListener("click", () => openEditModal(null));
 modalClose.addEventListener("click", () => modalOverlay.classList.remove("open"));
 modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove("open"); });
 
@@ -244,9 +270,10 @@ songRows.addEventListener("input", (e) => {
   });
 });
 
-function saveCardToRoom() {
+function saveCard() {
   if (!currentRoom || !currentUser) return;
-  db.ref(`rooms/${currentRoom}/cards/${currentUser.uid}`).update({
+  const payload = {
+    ownerUid: currentUser.uid,
     creator: state.creator || currentUser.displayName || "friend",
     title: state.title || "untitled playlist",
     desc: state.desc,
@@ -254,11 +281,18 @@ function saveCardToRoom() {
     moodEmoji: state.moodEmoji,
     songs: state.songs.filter(s => s.title),
     updatedAt: Date.now()
-  });
+  };
+
+  if (editingCardId) {
+    db.ref(`rooms/${currentRoom}/cards/${editingCardId}`).update(payload);
+  } else {
+    payload.createdAt = Date.now();
+    db.ref(`rooms/${currentRoom}/cards`).push(payload);
+  }
 }
 cardForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  saveCardToRoom();
+  saveCard();
   modalOverlay.classList.remove("open");
 });
 
@@ -294,31 +328,4 @@ copyCodeBtn.addEventListener("click", () => {
     copyCodeBtn.textContent = "✓";
     setTimeout(() => (copyCodeBtn.textContent = "copy"), 1500);
   });
-});
-
-// ── Download ──
-downloadBtn.addEventListener("click", async () => {
-  if (!currentUser) return;
-  const myCardEl = document.querySelector(`[data-card-id="${currentUser.uid}"]`);
-  if (!myCardEl) { alert("Create your card first!"); return; }
-
-  downloadBtn.disabled = true;
-  downloadBtn.textContent = "saving...";
-  try {
-    const canvas = await html2canvas(myCardEl, {
-      backgroundColor: "#ffffff",
-      scale: 2,
-      ignoreElements: (el) => el.classList && (el.classList.contains("edit-btn") || el.classList.contains("reactions"))
-    });
-    const link = document.createElement("a");
-    link.download = `${(state.title || "tunecanvas-card").replace(/\s+/g, "-").toLowerCase()}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  } catch (err) {
-    console.error("download failed:", err);
-    alert("couldn't save the image, try again");
-  } finally {
-    downloadBtn.disabled = false;
-    downloadBtn.textContent = "save image";
-  }
 });
