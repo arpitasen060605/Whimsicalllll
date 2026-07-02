@@ -1,0 +1,22 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomCode": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists()",
+        "cards": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            "reactions": {
+              "$emoji": {
+                "$voterUid": {
+                  ".write": "auth != null && auth.uid === $voterUid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
