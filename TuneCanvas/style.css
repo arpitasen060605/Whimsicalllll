@@ -376,3 +376,105 @@ body {
     cursor: default;
     transform: none;
 }
+.hidden {
+    display: none !important;
+}
+
+/* ── Landing Screen ── */
+.landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    gap: 8px;
+}
+.landing-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+.landing-btn {
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+.landing-btn.primary {
+    background: #6096A2;
+    color: white;
+}
+.landing-btn.primary:hover {
+    background: #4F818C;
+    transform: translateY(-2px);
+}
+.landing-btn.secondary {
+    background: white;
+    color: #6096A2;
+    border: 1px solid #F4C3B6;
+}
+.landing-btn.secondary:hover {
+    background: #FAF7F5;
+}
+.join-form {
+    display: none;
+    gap: 8px;
+    margin-top: 16px;
+}
+.join-form.open {
+    display: flex;
+}
+.join-form input {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #F4C3B6;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: #FAF7F5;
+    color: #3D3535;
+    width: 160px;
+}
+.join-form input:focus {
+    outline: none;
+    border-color: #6096A2;
+}
+
+/* ── Room Bar ── */
+.room-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 8px 14px;
+    background: white;
+    border-radius: 999px;
+    border: 1px solid #F4C3B6;
+}
+.room-code-label {
+    font-size: 11px;
+    color: #CEA2A8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.room-code {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: #3D3535;
+    font-weight: 500;
+}
+.copy-btn {
+    border: none;
+    background: #FAF7F5;
+    color: #6096A2;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+.copy-btn:hover {
+    background: #F4C3B6;
+    color: #8B5E5E;
+}

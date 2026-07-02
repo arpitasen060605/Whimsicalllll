@@ -10,6 +10,60 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const ROOM_WORDS = ["VIBE", "GLOW", "WAVE", "DUSK", "ECHO", "DAWN", "FIZZ", "HAZE", "SPIN", "DRIP", "MELT", "BLOOM"];
+
+function generateRoomCode() {
+  const word = ROOM_WORDS[Math.floor(Math.random() * ROOM_WORDS.length)];
+  const num = Math.floor(1000 + Math.random() * 9000);
+  return `${word}-${num}`;
+}
+
+const landingScreen = document.getElementById("landingScreen");
+const appScreen = document.getElementById("appScreen");
+const createRoomBtn = document.getElementById("createRoomBtn");
+const showJoinBtn = document.getElementById("showJoinBtn");
+const joinForm = document.getElementById("joinForm");
+const joinCodeInput = document.getElementById("joinCodeInput");
+const joinRoomBtn = document.getElementById("joinRoomBtn");
+const roomCodeDisplay = document.getElementById("roomCodeDisplay");
+const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+function enterRoom(code) {
+  localStorage.setItem("tunecanvas_room", code);
+  roomCodeDisplay.textContent = code;
+  landingScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+}
+
+createRoomBtn.addEventListener("click", async () => {
+  const code = generateRoomCode();
+  await db.ref(`rooms/${code}`).set({ createdAt: Date.now() });
+  enterRoom(code);
+});
+
+showJoinBtn.addEventListener("click", () => {
+  joinForm.classList.toggle("open");
+});
+
+joinRoomBtn.addEventListener("click", () => {
+  const code = joinCodeInput.value.trim().toUpperCase();
+  if (!code) return;
+
+  db.ref(`rooms/${code}`).once("value").then((snapshot) => {
+    if (snapshot.exists()) {
+      enterRoom(code);
+    } else {
+      alert("Room not found — double check the code and try again.");
+    }
+  });
+});
+
+copyCodeBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(roomCodeDisplay.textContent).then(() => {
+    copyCodeBtn.textContent = "✓";
+    setTimeout(() => (copyCodeBtn.textContent = "copy"), 1500);
+  });
+});
 const MOOD_THEMES = {
   dreamy: { base: "#C9BFE8", accent: "#8B7FC7" },
   golden: { base: "#F4C3B6", accent: "#D98E5C" },
@@ -191,6 +245,11 @@ cardForm.addEventListener("submit", (e) => {
   modalOverlay.classList.remove("open");
 });
 
+
+const savedRoom = localStorage.getItem("tunecanvas_room");
+if (savedRoom) {
+  enterRoom(savedRoom);
+}
 
 renderMoodPicker();
 renderCard();
