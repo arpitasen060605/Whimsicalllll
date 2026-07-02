@@ -9,8 +9,14 @@
 </head>
 <body>
 
+<div class="login-screen" id="loginScreen">
+    <h1 class="site-title">TuneCanvas</h1>
+    <p class="site-subtitle">Paint your Playlist✨</p>
+    <button id="googleSignInBtn" class="landing-btn primary">sign in with Google</button>
+</div>
+
     <!-- LANDING SCREEN -->
-    <div class="landing" id="landingScreen">
+    <div class="landing hidden" id="landingScreen">
         <h1 class="site-title">TuneCanvas</h1>
         <p class="site-subtitle">Paint your Playlist✨</p>
 
@@ -32,6 +38,7 @@
         <span class="room-code" id="roomCodeDisplay">—</span>
         <button id="copyCodeBtn" class="copy-btn" title="copy code">copy</button>
         <button id="downloadBtn" class="copy-btn" title="download my card">save image</button>
+        <button id="signOutBtn" class="copy-btn" title="sign out">sign out</button>
      </div>
 
      <div class="wall" id="wallContainer"></div>
@@ -75,6 +82,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

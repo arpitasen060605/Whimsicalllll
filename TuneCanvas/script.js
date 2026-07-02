@@ -9,6 +9,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 const MOOD_THEMES = {
   dreamy: { base: "#C9BFE8", accent: "#8B7FC7" },
@@ -17,7 +19,7 @@ const MOOD_THEMES = {
   chill:  { base: "#C3D4B5", accent: "#7A9463" },
   fiery:  { base: "#F4A896", accent: "#D9634F" }
 };
-
+const REACTIONS = ["🎵", "✨", "🔥"];
 const ROOM_WORDS = ["VIBE", "GLOW", "WAVE", "DUSK", "ECHO", "DAWN", "FIZZ", "HAZE", "SPIN", "DRIP", "MELT", "BLOOM"];
 
 function generateRoomCode() {
@@ -25,32 +27,25 @@ function generateRoomCode() {
   const num = Math.floor(1000 + Math.random() * 9000);
   return `${word}-${num}`;
 }
-
 function hashRotation(id) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) % 1000;
   return (hash % 9) - 4;
 }
-
 function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str || "";
   return div.innerHTML;
 }
 
-let state = {
-  creator: "",
-  title: "",
-  desc: "",
-  mood: "dreamy",
-  moodEmoji: "☁️",
-  songs: [{ title: "", artist: "" }]
-};
-
-let myCardId = localStorage.getItem("tunecanvas_card_id") || null;
+let state = { creator: "", title: "", desc: "", mood: "dreamy", moodEmoji: "☁️", songs: [{ title: "", artist: "" }] };
 let roomCards = {};
 let currentRoom = null;
+let currentUser = null;
 
+const loginScreen = document.getElementById("loginScreen");
+const googleSignInBtn = document.getElementById("googleSignInBtn");
+const signOutBtn = document.getElementById("signOutBtn");
 const landingScreen = document.getElementById("landingScreen");
 const appScreen = document.getElementById("appScreen");
 const createRoomBtn = document.getElementById("createRoomBtn");
@@ -73,6 +68,38 @@ const moodPicker = document.getElementById("moodPicker");
 const songRows = document.getElementById("songRows");
 const addSongBtn = document.getElementById("addSongBtn");
 
+// ── Auth ──
+googleSignInBtn.addEventListener("click", () => {
+  auth.signInWithPopup(googleProvider).catch((err) => {
+    console.error(err);
+    alert("sign-in failed, try again");
+  });
+});
+signOutBtn.addEventListener("click", () => {
+  auth.signOut();
+});
+
+auth.onAuthStateChanged((user) => {
+  currentUser = user;
+  if (user) {
+    loginScreen.classList.add("hidden");
+    state.creator = user.displayName || "friend";
+
+    const savedRoom = localStorage.getItem("tunecanvas_room");
+    if (savedRoom) {
+      enterRoom(savedRoom);
+    } else {
+      landingScreen.classList.remove("hidden");
+    }
+  } else {
+    loginScreen.classList.remove("hidden");
+    landingScreen.classList.add("hidden");
+    appScreen.classList.add("hidden");
+    currentRoom = null;
+  }
+});
+
+// ── Card rendering ──
 function cardTemplate(id, data, isMine) {
   const theme = MOOD_THEMES[data.mood] || MOOD_THEMES.golden;
   const rot = hashRotation(id);
@@ -86,6 +113,15 @@ function cardTemplate(id, data, isMine) {
       </div>
     </div>
   `).join("");
+
+  const reactionsHtml = REACTIONS.map(emoji => {
+    const reactedBy = (data.reactions && data.reactions[emoji]) || {};
+    const count = Object.keys(reactedBy).length;
+    const active = currentUser && !!reactedBy[currentUser.uid];
+    return `<button class="reaction-btn ${active ? "active" : ""}" data-react="${emoji}" data-card="${id}">
+      <span>${emoji}</span>${count > 0 ? `<span class="reaction-count">${count}</span>` : ""}
+    </button>`;
+  }).join("");
 
   return `
     <div class="card" data-card-id="${id}" style="--mood-base:${theme.base};--mood-accent:${theme.accent};--rot:${rot}deg">
@@ -101,6 +137,7 @@ function cardTemplate(id, data, isMine) {
         <span class="song-count">${songs.length} song${songs.length === 1 ? "" : "s"}</span>
         <span class="card-tag">🎨 TuneCanvas</span>
       </div>
+      <div class="reactions">${reactionsHtml}</div>
     </div>
   `;
 }
@@ -115,38 +152,45 @@ function emptyTile() {
 }
 
 function renderWall() {
-  const entries = Object.entries(roomCards);
+  const myId = currentUser ? currentUser.uid : null;
   let html = "";
-
-  if (!myCardId || !roomCards[myCardId]) {
-    html += emptyTile();
-  }
-
-  entries.forEach(([id, data]) => {
-    html += cardTemplate(id, data, id === myCardId);
+  if (!myId || !roomCards[myId]) html += emptyTile();
+  Object.entries(roomCards).forEach(([id, data]) => {
+    html += cardTemplate(id, data, id === myId);
   });
-
   wallContainer.innerHTML = html;
 }
 
 wallContainer.addEventListener("click", (e) => {
   if (e.target.closest("[data-edit]") || e.target.id === "createCardBtn") {
     openEditModal();
+    return;
   }
+  const reactBtn = e.target.closest("[data-react]");
+  if (reactBtn) toggleReaction(reactBtn.dataset.card, reactBtn.dataset.react);
 });
 
+function toggleReaction(cardId, emoji) {
+  if (!currentUser) return;
+  const path = `rooms/${currentRoom}/cards/${cardId}/reactions/${emoji}/${currentUser.uid}`;
+  const already = roomCards[cardId] && roomCards[cardId].reactions &&
+    roomCards[cardId].reactions[emoji] && roomCards[cardId].reactions[emoji][currentUser.uid];
+  if (already) db.ref(path).remove();
+  else db.ref(path).set(true);
+}
+
+// ── Edit modal ──
 function openEditModal() {
-  const existing = myCardId ? roomCards[myCardId] : null;
-  if (existing) {
-    state = {
-      creator: existing.creator || "",
-      title: existing.title || "",
-      desc: existing.desc || "",
-      mood: existing.mood || "dreamy",
-      moodEmoji: existing.moodEmoji || "☁️",
-      songs: existing.songs && existing.songs.length ? existing.songs : [{ title: "", artist: "" }]
-    };
-  }
+  const myId = currentUser ? currentUser.uid : null;
+  const existing = myId ? roomCards[myId] : null;
+  state = {
+    creator: currentUser.displayName || "friend",
+    title: existing ? existing.title || "" : "",
+    desc: existing ? existing.desc || "" : "",
+    mood: existing ? existing.mood || "dreamy" : "dreamy",
+    moodEmoji: existing ? existing.moodEmoji || "☁️" : "☁️",
+    songs: existing && existing.songs && existing.songs.length ? existing.songs : [{ title: "", artist: "" }]
+  };
   inputCreator.value = state.creator;
   inputTitle.value = state.title;
   inputDesc.value = state.desc;
@@ -154,16 +198,11 @@ function openEditModal() {
   renderSongRows();
   modalOverlay.classList.add("open");
 }
-
 modalClose.addEventListener("click", () => modalOverlay.classList.remove("open"));
-modalOverlay.addEventListener("click", (e) => {
-  if (e.target === modalOverlay) modalOverlay.classList.remove("open");
-});
+modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove("open"); });
 
 function renderMoodPicker() {
-  [...moodPicker.children].forEach(btn => {
-    btn.classList.toggle("selected", btn.dataset.mood === state.mood);
-  });
+  [...moodPicker.children].forEach(btn => btn.classList.toggle("selected", btn.dataset.mood === state.mood));
 }
 moodPicker.addEventListener("click", (e) => {
   if (!e.target.classList.contains("mood-option")) return;
@@ -185,10 +224,7 @@ function renderSongRows() {
     songRows.appendChild(row);
   });
 }
-addSongBtn.addEventListener("click", () => {
-  state.songs.push({ title: "", artist: "" });
-  renderSongRows();
-});
+addSongBtn.addEventListener("click", () => { state.songs.push({ title: "", artist: "" }); renderSongRows(); });
 songRows.addEventListener("click", (e) => {
   if (!e.target.classList.contains("remove-song-btn")) return;
   state.songs.splice(Number(e.target.dataset.index), 1);
@@ -209,13 +245,9 @@ songRows.addEventListener("input", (e) => {
 });
 
 function saveCardToRoom() {
-  if (!currentRoom) return;
-  if (!myCardId) {
-    myCardId = db.ref(`rooms/${currentRoom}/cards`).push().key;
-    localStorage.setItem("tunecanvas_card_id", myCardId);
-  }
-  db.ref(`rooms/${currentRoom}/cards/${myCardId}`).set({
-    creator: state.creator || "someone",
+  if (!currentRoom || !currentUser) return;
+  db.ref(`rooms/${currentRoom}/cards/${currentUser.uid}`).update({
+    creator: state.creator || currentUser.displayName || "friend",
     title: state.title || "untitled playlist",
     desc: state.desc,
     mood: state.mood,
@@ -224,13 +256,13 @@ function saveCardToRoom() {
     updatedAt: Date.now()
   });
 }
-
 cardForm.addEventListener("submit", (e) => {
   e.preventDefault();
   saveCardToRoom();
   modalOverlay.classList.remove("open");
 });
 
+// ── Rooms ──
 function enterRoom(code) {
   currentRoom = code;
   localStorage.setItem("tunecanvas_room", code);
@@ -243,29 +275,20 @@ function enterRoom(code) {
     renderWall();
   });
 }
-
 createRoomBtn.addEventListener("click", async () => {
   const code = generateRoomCode();
   await db.ref(`rooms/${code}`).set({ createdAt: Date.now() });
   enterRoom(code);
 });
-
-showJoinBtn.addEventListener("click", () => {
-  joinForm.classList.toggle("open");
-});
-
+showJoinBtn.addEventListener("click", () => joinForm.classList.toggle("open"));
 joinRoomBtn.addEventListener("click", () => {
   const code = joinCodeInput.value.trim().toUpperCase();
   if (!code) return;
   db.ref(`rooms/${code}`).once("value").then((snapshot) => {
-    if (snapshot.exists()) {
-      enterRoom(code);
-    } else {
-      alert("Room not found — double check the code and try again.");
-    }
+    if (snapshot.exists()) enterRoom(code);
+    else alert("Room not found — double check the code and try again.");
   });
 });
-
 copyCodeBtn.addEventListener("click", () => {
   navigator.clipboard.writeText(roomCodeDisplay.textContent).then(() => {
     copyCodeBtn.textContent = "✓";
@@ -273,22 +296,19 @@ copyCodeBtn.addEventListener("click", () => {
   });
 });
 
+// ── Download ──
 downloadBtn.addEventListener("click", async () => {
-  if (!myCardId) {
-    alert("Create your card first!");
-    return;
-  }
-  const myCardEl = document.querySelector(`[data-card-id="${myCardId}"]`);
-  if (!myCardEl) return;
+  if (!currentUser) return;
+  const myCardEl = document.querySelector(`[data-card-id="${currentUser.uid}"]`);
+  if (!myCardEl) { alert("Create your card first!"); return; }
 
   downloadBtn.disabled = true;
   downloadBtn.textContent = "saving...";
-
   try {
     const canvas = await html2canvas(myCardEl, {
       backgroundColor: "#ffffff",
       scale: 2,
-      ignoreElements: (el) => el.classList && el.classList.contains("edit-btn")
+      ignoreElements: (el) => el.classList && (el.classList.contains("edit-btn") || el.classList.contains("reactions"))
     });
     const link = document.createElement("a");
     link.download = `${(state.title || "tunecanvas-card").replace(/\s+/g, "-").toLowerCase()}.png`;
@@ -302,8 +322,3 @@ downloadBtn.addEventListener("click", async () => {
     downloadBtn.textContent = "save image";
   }
 });
-
-const savedRoom = localStorage.getItem("tunecanvas_room");
-if (savedRoom) {
-  enterRoom(savedRoom);
-}
