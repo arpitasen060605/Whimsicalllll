@@ -33,6 +33,41 @@ function enterRoom(code) {
   roomCodeDisplay.textContent = code;
   landingScreen.classList.add("hidden");
   appScreen.classList.remove("hidden");
+  localStorage.setItem("tunecanvas_room", code);
+  roomCodeDisplay.textContent = code;
+  landingScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+
+  if (myCardId) {
+    db.ref(`rooms/${code}/cards/${myCardId}`).once("value").then((snapshot) => {
+      if (snapshot.exists()) {
+        const saved = snapshot.val();
+        state = { ...state, ...saved };
+        renderCard();
+      }
+    });
+  }
+}
+let myCardId = localStorage.getItem("tunecanvas_card_id") || null;
+
+function saveCardToRoom() {
+  const room = localStorage.getItem("tunecanvas_room");
+  if (!room) return;
+
+  if (!myCardId) {
+    myCardId = db.ref(`rooms/${room}/cards`).push().key;
+    localStorage.setItem("tunecanvas_card_id", myCardId);
+  }
+
+  db.ref(`rooms/${room}/cards/${myCardId}`).set({
+    creator: state.creator,
+    title: state.title,
+    desc: state.desc,
+    mood: state.mood,
+    moodEmoji: state.moodEmoji,
+    songs: state.songs.filter(s => s.title),
+    updatedAt: Date.now()
+  });
 }
 
 createRoomBtn.addEventListener("click", async () => {
@@ -242,6 +277,7 @@ downloadBtn.addEventListener("click", async () => {
 // ── Form submit just closes modal (preview already live) ──
 cardForm.addEventListener("submit", (e) => {
   e.preventDefault();
+  saveCardToRoom();
   modalOverlay.classList.remove("open");
 });
 
