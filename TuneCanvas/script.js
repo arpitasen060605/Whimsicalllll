@@ -1,4 +1,11 @@
-// ── App State ──
+const MOOD_THEMES = {
+  dreamy: { base: "#C9BFE8", accent: "#8B7FC7" },
+  golden: { base: "#F4C3B6", accent: "#D98E5C" },
+  moody:  { base: "#A8C0CE", accent: "#5C7A8E" },
+  chill:  { base: "#C3D4B5", accent: "#7A9463" },
+  fiery:  { base: "#F4A896", accent: "#D9634F" }
+};
+
 let state = {
   creator: "arpita",
   title: "late night drives",
@@ -26,6 +33,7 @@ const inputDesc = document.getElementById("inputDesc");
 const moodPicker = document.getElementById("moodPicker");
 const songRows = document.getElementById("songRows");
 const addSongBtn = document.getElementById("addSongBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
 // ── Open / Close Modal ──
 openModalBtn.addEventListener("click", () => {
@@ -108,6 +116,10 @@ songRows.addEventListener("input", (e) => {
 
 // ── Render the actual card ──
 function renderCard() {
+  const theme = MOOD_THEMES[state.mood] || MOOD_THEMES.golden;
+  card.style.setProperty("--mood-base", theme.base);
+  card.style.setProperty("--mood-accent", theme.accent);
+  card.querySelector(".card-mood").textContent = `${state.moodEmoji} ${state.mood}`;
   card.querySelector(".card-mood").textContent = `${state.moodEmoji} ${state.mood}`;
   card.querySelector(".card-creator").textContent = `by ${state.creator}`;
   card.querySelector(".card-title").textContent = state.title;
@@ -133,6 +145,33 @@ function renderCard() {
   const count = state.songs.filter(s => s.title).length;
   card.querySelector(".song-count").textContent = `${count} song${count === 1 ? "" : "s"}`;
 }
+downloadBtn.addEventListener("click", async () => {
+  const editBtn = document.getElementById("openModalBtn");
+
+  editBtn.style.visibility = "hidden";
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = "saving...";
+
+  try {
+    const canvas = await html2canvas(card, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      ignoreElements: (el) => el.id === "downloadBtn" || el.id === "openModalBtn"
+    });
+
+    const link = document.createElement("a");
+    link.download = `${state.title.replace(/\s+/g, "-").toLowerCase() || "tunecanvas-card"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (err) {
+    console.error("download failed:", err);
+    alert("couldn't save the image, try again");
+  } finally {
+    editBtn.style.visibility = "visible";
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = `<span>⬇</span> save image`;
+  }
+});
 
 // ── Form submit just closes modal (preview already live) ──
 cardForm.addEventListener("submit", (e) => {
@@ -140,6 +179,6 @@ cardForm.addEventListener("submit", (e) => {
   modalOverlay.classList.remove("open");
 });
 
-// ── Init ──
+
 renderMoodPicker();
 renderCard();

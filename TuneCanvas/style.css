@@ -50,7 +50,10 @@ body {
         0 1px 4px rgba(206,162,168,0.1);
     border: 1px solid rgba(244,195,182,0.6);
     position: relative;
+     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    --mood-base: #F4C3B6;
+    --mood-accent: #D98E5C;
 }
 
 .card:hover {
@@ -70,8 +73,8 @@ body {
 
 .card-mood {
     font-size: 12px;
-    background: #F4C3B6;
-    color: #8B5E5E;
+    background: var(--mood-base);
+    color: var(--mood-accent);
     padding: 4px 12px;
     border-radius: 20px;
     font-weight: 500;
@@ -335,4 +338,41 @@ body {
 }
 .save-btn:hover {
     background: #4F818C;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--mood-accent);
+    transition: background 0.3s ease;
+}
+.download-btn {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background: white;
+    color: #6096A2;
+    border: 1px solid #F4C3B6;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.download-btn:hover {
+    background: #FAF7F5;
+    transform: translateY(-2px);
+}
+.download-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+    transform: none;
 }
