@@ -1,3 +1,15 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyDKx2zROcaCfljHIUXXmvXeXJQUU5xobac",
+  authDomain: "tunecanvas-4680c.firebaseapp.com",
+  databaseURL: "https://tunecanvas-4680c-default-rtdb.firebaseio.com",
+  projectId: "tunecanvas-4680c",
+  storageBucket: "tunecanvas-4680c.firebasestorage.app",
+  messagingSenderId: "1056849938609",
+  appId: "1:1056849938609:web:306fde6385ed9e1a207a90"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 const MOOD_THEMES = {
   dreamy: { base: "#C9BFE8", accent: "#8B7FC7" },
   golden: { base: "#F4C3B6", accent: "#D98E5C" },
