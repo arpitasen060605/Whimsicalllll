@@ -20,9 +20,11 @@ body {
 .page-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
     padding: 48px 24px;
     gap: 8px;
+    box-sizing: border-box;
 }
 
 .site-title {
@@ -54,6 +56,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     --mood-base: #F4C3B6;
     --mood-accent: #D98E5C;
+    transform: rotate(var(--rot, 0deg));
 }
 
 .card:hover {
@@ -61,6 +64,7 @@ body {
     box-shadow: 
         0 12px 40px rgba(206,162,168,0.3),
         0 4px 12px rgba(206,162,168,0.15);
+        transform: rotate(0deg) translateY(-6px);
 }
 
 
@@ -447,11 +451,12 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
     padding: 8px 14px;
     background: white;
     border-radius: 999px;
     border: 1px solid #F4C3B6;
+    width: fit-content;
 }
 .room-code-label {
     font-size: 11px;
@@ -477,4 +482,33 @@ body {
 .copy-btn:hover {
     background: #F4C3B6;
     color: #8B5E5E;
+}
+
+.empty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 340px;
+    min-height: 200px;
+    background: transparent;
+    border: 2px dashed #F4C3B6;
+    box-shadow: none;
+}
+.empty-card-text {
+    font-size: 13px;
+    color: #A8918E;
+    text-align: center;
+}
+.wall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: center;
+    padding: 20px 24px 60px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
