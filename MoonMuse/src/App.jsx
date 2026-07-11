@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import DreamJournal from './pages/DreamJournal'
 import ReadingMode from './pages/ReadingMode'
 import Settings from './pages/Settings'
+import TimeCapsules from './pages/TimeCapsules'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/dreams" element={<DreamJournal />} />
             <Route path="/read/:entryId" element={<ReadingMode />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/capsules" element={<TimeCapsules />} />
           </Routes>
         </Layout>
       </BrowserRouter>
