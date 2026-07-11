@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-midnight: #0b0c2a;
+  --color-moonlight: #c9d6ff;
+  --color-lavender: #b8a9ff;
+}
+
+body {
+  background-color: var(--color-midnight);
+  color: var(--color-moonlight);
+}
