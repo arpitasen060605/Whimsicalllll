@@ -18,7 +18,7 @@ function EntryCard({ entry, onEdit, onDelete }) {
       <p className="text-sm opacity-60 mb-2">
         {moodData ? `${moodData.emoji} ${moodData.label}` : entry.mood}
       </p>
-      <p className="opacity-90 whitespace-pre-wrap">{entry.content}</p>
+      <p className="opacity-90 whitespace-pre-wrap break-words">{entry.content}</p>
 
       {entry.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">

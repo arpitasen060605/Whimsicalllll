@@ -57,7 +57,7 @@ function ReadingMode() {
           {entry.title}
         </h1>
 
-        <p className="text-lg leading-loose opacity-90 whitespace-pre-wrap">{entry.content}</p>
+       <p className="text-lg leading-loose opacity-90 whitespace-pre-wrap break-words">{entry.content}</p>
 
         {entry.tags?.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-10">
