@@ -10,22 +10,23 @@ function EntryCard({ entry, onEdit, onDelete }) {
   })
 
   return (
-    <div className="bg-white/5 rounded-xl p-5 border border-lavender/10">
+    <div className="rounded-xl p-5 border" style={{ backgroundColor: 'var(--moon-surface)', borderColor: 'var(--moon-accent)', borderOpacity: 0.1 }}>
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-lavender">{entry.title}</h3>
-        <span className="text-xs text-moonlight/50">{date}</span>
+        <h3 className="font-semibold" style={{ color: 'var(--moon-accent)' }}>{entry.title}</h3>
+        <span className="text-xs opacity-50">{date}</span>
       </div>
-      <p className="text-sm text-moonlight/50 mb-2">
+      <p className="text-sm opacity-60 mb-2">
         {moodData ? `${moodData.emoji} ${moodData.label}` : entry.mood}
       </p>
-      <p className="text-moonlight/80 whitespace-pre-wrap">{entry.content}</p>
+      <p className="opacity-90 whitespace-pre-wrap">{entry.content}</p>
 
       {entry.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {entry.tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs px-2 py-0.5 rounded-full bg-lavender/10 text-lavender/80"
+              className="text-xs px-2 py-0.5 rounded-full"
+              style={{ backgroundColor: 'var(--moon-glow)', color: 'var(--moon-accent)', opacity: 0.8 }}
             >
               #{tag}
             </span>
@@ -34,13 +35,13 @@ function EntryCard({ entry, onEdit, onDelete }) {
       )}
 
       <div className="flex gap-4 mt-4 text-sm">
-        <Link to={`/read/${entry.id}`} className="text-moonlight/60 hover:text-lavender">
+        <Link to={`/read/${entry.id}`} className="opacity-60 hover:opacity-100">
           Read
         </Link>
-        <button onClick={() => onEdit(entry)} className="text-moonlight/60 hover:text-lavender">
+        <button onClick={() => onEdit(entry)} className="opacity-60 hover:opacity-100">
           Edit
         </button>
-        <button onClick={() => onDelete(entry.id)} className="text-moonlight/60 hover:text-red-400">
+        <button onClick={() => onDelete(entry.id)} className="opacity-60 hover:text-red-400">
           Delete
         </button>
       </div>

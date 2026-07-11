@@ -7,6 +7,7 @@ const navItems = [
   { to: '/calendar', label: 'Calendar' },
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/dreams', label: 'Dreams' },
+  { to: '/settings', label: 'Settings' },
 ]
 
 function Navbar() {
@@ -21,15 +22,18 @@ function Navbar() {
             to={item.to}
             className={({ isActive }) =>
               `text-sm font-medium transition ${
-                isActive ? 'text-lavender' : 'text-moonlight/60 hover:text-moonlight'
+                isActive ? 'opacity-100 font-semibold' : 'opacity-60 hover:opacity-90'
               }`
             }
+            style={({ isActive }) => ({
+              color: isActive ? 'var(--moon-accent)' : 'inherit',
+            })}
           >
             {item.label}
           </NavLink>
         ))}
       </div>
-      <div className="text-sm text-moonlight/60">
+      <div className="text-sm opacity-70">
         {phase.emoji} {phase.name}
       </div>
     </nav>

@@ -1,31 +1,55 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getCurrentMoonPhase } from '../utils/moonPhase'
 import { MOON_THEMES } from '../utils/moonThemes'
+import { PERSONAL_THEMES } from '../utils/personalThemes'
 
 const MoonPhaseContext = createContext(null)
+const THEME_STORAGE_KEY = 'moonmuse_theme'
 
 export function MoonPhaseProvider({ children }) {
-const [phase, setPhase] = useState(() => getCurrentMoonPhase())
+  const [phase, setPhase] = useState(() => getCurrentMoonPhase())
+  const [themeKey, setThemeKey] = useState(
+    () => localStorage.getItem(THEME_STORAGE_KEY) || 'default'
+  )
 
   useEffect(() => {
-    // Re-check the phase once a day in case the app stays open across midnight
     const interval = setInterval(() => {
       setPhase(getCurrentMoonPhase())
-    }, 1000 * 60 * 60) // every hour
+    }, 1000 * 60 * 60)
     return () => clearInterval(interval)
   }, [])
 
-  const theme = MOON_THEMES[phase.name]
+  const moonTheme = MOON_THEMES[phase.name]
+  const personalTheme = PERSONAL_THEMES[themeKey]
 
   useEffect(() => {
-    // Apply theme colors as CSS variables on the root element
-    document.documentElement.style.setProperty('--moon-bg', theme.background)
-    document.documentElement.style.setProperty('--moon-accent', theme.accent)
-    document.documentElement.style.setProperty('--moon-glow', theme.glow)
-  }, [theme])
+    const root = document.documentElement
+
+    if (personalTheme.fixed) {
+      root.style.setProperty('--moon-bg', personalTheme.background)
+      root.style.setProperty('--moon-accent', personalTheme.accent)
+      root.style.setProperty('--moon-glow', personalTheme.accentSoft || personalTheme.accent)
+      root.style.setProperty('--moon-surface', personalTheme.surface)
+      root.style.setProperty('--moon-text', personalTheme.text)
+    } else {
+      root.style.setProperty('--moon-bg', moonTheme.background)
+      root.style.setProperty('--moon-accent', moonTheme.accent)
+      root.style.setProperty('--moon-glow', moonTheme.glow)
+      root.style.setProperty('--moon-surface', 'rgba(255,255,255,0.05)')
+      root.style.setProperty('--moon-text', '#c9d6ff')
+    }
+
+    root.style.setProperty('--moon-font-heading', personalTheme.fontHeading)
+    root.style.setProperty('--moon-font-body', personalTheme.fontBody)
+  }, [moonTheme, personalTheme])
+
+  function selectTheme(key) {
+    setThemeKey(key)
+    localStorage.setItem(THEME_STORAGE_KEY, key)
+  }
 
   return (
-    <MoonPhaseContext.Provider value={{ phase, theme }}>
+    <MoonPhaseContext.Provider value={{ phase, themeKey, selectTheme, personalTheme }}>
       {children}
     </MoonPhaseContext.Provider>
   )

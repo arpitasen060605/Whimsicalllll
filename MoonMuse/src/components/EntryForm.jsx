@@ -24,20 +24,25 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto bg-white/5 rounded-2xl p-6 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-xl mx-auto rounded-2xl p-6 space-y-4"
+      style={{ backgroundColor: 'var(--moon-surface)' }}
+    >
       <div>
-        <label className="text-sm text-moonlight/70 block mb-2">How are you feeling?</label>
+        <label className="text-sm block mb-2 opacity-70">How are you feeling?</label>
         <div className="flex flex-wrap gap-2">
           {MOODS.map((m) => (
             <button
               type="button"
               key={m.label}
               onClick={() => setMood(m.label)}
-              className={`px-3 py-1 rounded-full text-sm border transition ${
+              className="px-3 py-1 rounded-full text-sm border transition"
+              style={
                 mood === m.label
-                  ? 'bg-lavender text-midnight border-lavender'
-                  : 'border-lavender/30 text-moonlight/70 hover:border-lavender'
-              }`}
+                  ? { backgroundColor: 'var(--moon-accent)', color: 'var(--moon-bg)', borderColor: 'var(--moon-accent)' }
+                  : { borderColor: 'var(--moon-accent)', opacity: 0.6 }
+              }
             >
               {m.emoji} {m.label}
             </button>
@@ -50,7 +55,8 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
         placeholder="Give your entry a title..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender"
+        className="w-full bg-transparent border rounded-lg px-4 py-2 focus:outline-none"
+        style={{ borderColor: 'var(--moon-accent)' }}
       />
 
       <textarea
@@ -58,7 +64,8 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={6}
-        className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender resize-none"
+        className="w-full bg-transparent border rounded-lg px-4 py-2 focus:outline-none resize-none"
+        style={{ borderColor: 'var(--moon-accent)' }}
       />
 
       <input
@@ -66,22 +73,20 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
         placeholder="Tags, separated by commas (e.g. college, gratitude)"
         value={tagsInput}
         onChange={(e) => setTagsInput(e.target.value)}
-        className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender"
+        className="w-full bg-transparent border rounded-lg px-4 py-2 focus:outline-none"
+        style={{ borderColor: 'var(--moon-accent)' }}
       />
 
       <div className="flex gap-3 justify-end">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-moonlight/60 hover:text-moonlight"
-          >
+          <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg opacity-60 hover:opacity-100">
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="px-5 py-2 rounded-lg bg-lavender text-midnight font-medium hover:opacity-90"
+          className="px-5 py-2 rounded-lg font-medium hover:opacity-90"
+          style={{ backgroundColor: 'var(--moon-accent)', color: 'var(--moon-bg)' }}
         >
           {initialData ? 'Update Entry' : 'Save Entry'}
         </button>

@@ -9,13 +9,16 @@ function DayCell({ day, entries, onSelect }) {
   return (
     <button
       onClick={() => onSelect(day.date)}
-      className={`aspect-square rounded-lg border p-2 flex flex-col items-center justify-between transition
-        ${day.isCurrentMonth ? 'border-lavender/10' : 'border-transparent opacity-30'}
-        ${day.isToday ? 'border-lavender ring-1 ring-lavender' : ''}
-        ${hasEntries ? 'bg-white/5 hover:bg-white/10' : 'hover:bg-white/5'}
-      `}
+      className={`aspect-square rounded-lg border p-2 flex flex-col items-center justify-between transition ${
+        day.isCurrentMonth ? '' : 'opacity-30'
+      }`}
+      style={{
+        borderColor: day.isToday ? 'var(--moon-accent)' : 'rgba(128,128,128,0.2)',
+        borderWidth: day.isToday ? '2px' : '1px',
+        backgroundColor: hasEntries ? 'var(--moon-surface)' : 'transparent',
+      }}
     >
-      <span className="text-xs text-moonlight/60">{day.dayNumber}</span>
+      <span className="text-xs opacity-70">{day.dayNumber}</span>
       <span className="text-lg">{firstMood?.emoji || ''}</span>
       <span className="text-[10px] opacity-50">{moonPhase.emoji}</span>
     </button>

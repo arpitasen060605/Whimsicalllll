@@ -7,9 +7,8 @@
 }
 
 body {
-  background-color: var(--moon-bg, #0b0c2a);
   color: var(--color-moonlight);
-  transition: background-color 1.5s ease;
+  font-family: var(--moon-font-body, inherit);
 }
 
 @keyframes page-turn-in-forward {

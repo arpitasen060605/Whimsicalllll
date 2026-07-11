@@ -21,29 +21,25 @@ function Calendar() {
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold text-lavender text-center mb-8">📅 Calendar</h1>
+      <h1 className="text-3xl font-bold text-center mb-8" style={{ color: 'var(--moon-accent)' }}>
+         Calendar
+      </h1>
 
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-          className="px-3 py-1 rounded-lg hover:bg-white/5 text-moonlight/70"
-        >
+        <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="px-3 py-1 rounded-lg opacity-70 hover:opacity-100">
           ← Prev
         </button>
-        <h2 className="text-lg font-semibold text-lavender">
+        <h2 className="text-lg font-semibold" style={{ color: 'var(--moon-accent)' }}>
           {format(currentDate, 'MMMM yyyy')}
         </h2>
-        <button
-          onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-          className="px-3 py-1 rounded-lg hover:bg-white/5 text-moonlight/70"
-        >
+        <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="px-3 py-1 rounded-lg opacity-70 hover:opacity-100">
           Next →
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 mb-2">
         {WEEKDAYS.map((wd) => (
-          <div key={wd} className="text-center text-xs text-moonlight/40">
+          <div key={wd} className="text-center text-xs opacity-50">
             {wd}
           </div>
         ))}
@@ -62,11 +58,11 @@ function Calendar() {
 
       {selectedDate && (
         <div className="mt-8">
-          <h3 className="text-lavender font-semibold mb-3">
+          <h3 className="font-semibold mb-3" style={{ color: 'var(--moon-accent)' }}>
             {format(selectedDate, 'MMMM d, yyyy')}
           </h3>
           {selectedEntries.length === 0 ? (
-            <p className="text-moonlight/40 text-sm">No entries on this day.</p>
+            <p className="opacity-50 text-sm">No entries on this day.</p>
           ) : (
             <div className="space-y-4">
               {selectedEntries.map((entry) => (

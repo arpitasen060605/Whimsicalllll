@@ -18,21 +18,14 @@ function ReadingMode() {
   const entry = entries[currentIndex]
 
   if (entries.length === 0) {
-    return (
-      <div className="text-center mt-20 text-moonlight/50">
-        No entries to read yet.
-      </div>
-    )
+    return <div className="text-center mt-20 opacity-50">No entries to read yet.</div>
   }
 
   if (!entry) {
     return (
-      <div className="text-center mt-20 text-moonlight/50">
+      <div className="text-center mt-20 opacity-50">
         Entry not found.
-        <button
-          onClick={() => navigate('/journal')}
-          className="block mx-auto mt-4 text-lavender hover:underline"
-        >
+        <button onClick={() => navigate('/journal')} className="block mx-auto mt-4 hover:underline" style={{ color: 'var(--moon-accent)' }}>
           Back to Journal
         </button>
       </div>
@@ -50,33 +43,26 @@ function ReadingMode() {
 
   return (
     <div className="max-w-2xl mx-auto py-16 px-6">
-      <button
-        onClick={() => navigate('/journal')}
-        className="text-sm text-moonlight/50 hover:text-lavender mb-10"
-      >
+      <button onClick={() => navigate('/journal')} className="text-sm opacity-60 hover:opacity-100 mb-10">
         ← Exit Reading Mode
       </button>
 
       <div key={entry.id} className={`font-serif ${direction === 'forward' ? 'page-forward' : 'page-backward'}`}>
-        <p className="text-sm text-moonlight/50 mb-1">
-          {format(new Date(entry.createdAt), 'MMMM d, yyyy')}
-        </p>
-        <p className="text-sm text-moonlight/50 mb-8">
+        <p className="text-sm opacity-50 mb-1">{format(new Date(entry.createdAt), 'MMMM d, yyyy')}</p>
+        <p className="text-sm opacity-50 mb-8">
           {moodData ? `${moodData.emoji} Feeling ${moodData.label}` : ''}
         </p>
 
-        <h1 className="text-4xl font-bold text-lavender mb-8 leading-tight">
+        <h1 className="text-4xl font-bold mb-8 leading-tight" style={{ color: 'var(--moon-accent)' }}>
           {entry.title}
         </h1>
 
-        <p className="text-lg leading-loose text-moonlight/90 whitespace-pre-wrap">
-          {entry.content}
-        </p>
+        <p className="text-lg leading-loose opacity-90 whitespace-pre-wrap">{entry.content}</p>
 
         {entry.tags?.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-10">
             {entry.tags.map((tag) => (
-              <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-lavender/10 text-lavender/70">
+              <span key={tag} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--moon-glow)', opacity: 0.7 }}>
                 #{tag}
               </span>
             ))}
@@ -84,22 +70,12 @@ function ReadingMode() {
         )}
       </div>
 
-      <div className="flex justify-between items-center mt-16 pt-6 border-t border-lavender/10">
-        <button
-          disabled={!hasPrev}
-          onClick={() => goTo(currentIndex + 1, 'backward')}
-          className="text-sm text-moonlight/60 hover:text-lavender disabled:opacity-20 disabled:cursor-not-allowed"
-        >
+      <div className="flex justify-between items-center mt-16 pt-6 border-t" style={{ borderColor: 'rgba(128,128,128,0.2)' }}>
+        <button disabled={!hasPrev} onClick={() => goTo(currentIndex + 1, 'backward')} className="text-sm opacity-60 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed">
           ← Older Entry
         </button>
-        <span className="text-xs text-moonlight/30">
-          {currentIndex + 1} of {entries.length}
-        </span>
-        <button
-          disabled={!hasNext}
-          onClick={() => goTo(currentIndex - 1, 'forward')}
-          className="text-sm text-moonlight/60 hover:text-lavender disabled:opacity-20 disabled:cursor-not-allowed"
-        >
+        <span className="text-xs opacity-30">{currentIndex + 1} of {entries.length}</span>
+        <button disabled={!hasNext} onClick={() => goTo(currentIndex - 1, 'forward')} className="text-sm opacity-60 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed">
           Newer Entry →
         </button>
       </div>

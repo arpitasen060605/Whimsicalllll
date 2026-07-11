@@ -44,8 +44,12 @@ function Journal() {
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold text-lavender text-center mb-8">📖 Daily Journal</h1>
-        <DailyMuse />
+      <h1 className="text-3xl font-bold text-center mb-8" style={{ color: 'var(--moon-accent)' }}>
+         Daily Journal
+      </h1>
+
+      <DailyMuse />
+
       <EntryForm
         key={editingEntry?.id || 'new'}
         onSave={handleSave}
@@ -59,13 +63,14 @@ function Journal() {
           placeholder="🔍 Search by title, mood, or tag..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender"
+          className="w-full bg-transparent border rounded-lg px-4 py-2 focus:outline-none"
+          style={{ borderColor: 'var(--moon-accent)', opacity: 1 }}
         />
       </div>
 
       <div className="space-y-4">
         {filteredEntries.length === 0 ? (
-          <p className="text-center text-moonlight/40">
+          <p className="text-center opacity-50">
             {entries.length === 0
               ? 'No entries yet. Write your first one above 🌙'
               : 'No entries match your search.'}
