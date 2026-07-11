@@ -5,14 +5,22 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
   const [title, setTitle] = useState(initialData?.title || '')
   const [content, setContent] = useState(initialData?.content || '')
   const [mood, setMood] = useState(initialData?.mood || '')
+  const [tagsInput, setTagsInput] = useState(initialData?.tags?.join(', ') || '')
 
   function handleSubmit(e) {
     e.preventDefault()
     if (!title.trim() || !content.trim() || !mood) return
-    onSave({ title, content, mood })
+
+    const tags = tagsInput
+      .split(',')
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0)
+
+    onSave({ title, content, mood, tags })
     setTitle('')
     setContent('')
     setMood('')
+    setTagsInput('')
   }
 
   return (
@@ -51,6 +59,14 @@ function EntryForm({ onSave, initialData = null, onCancel }) {
         onChange={(e) => setContent(e.target.value)}
         rows={6}
         className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender resize-none"
+      />
+
+      <input
+        type="text"
+        placeholder="Tags, separated by commas (e.g. college, gratitude)"
+        value={tagsInput}
+        onChange={(e) => setTagsInput(e.target.value)}
+        className="w-full bg-transparent border border-lavender/30 rounded-lg px-4 py-2 text-moonlight placeholder:text-moonlight/40 focus:outline-none focus:border-lavender"
       />
 
       <div className="flex gap-3 justify-end">

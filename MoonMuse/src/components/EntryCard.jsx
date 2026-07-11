@@ -18,6 +18,20 @@ function EntryCard({ entry, onEdit, onDelete }) {
         {moodData ? `${moodData.emoji} ${moodData.label}` : entry.mood}
       </p>
       <p className="text-moonlight/80 whitespace-pre-wrap">{entry.content}</p>
+
+      {entry.tags?.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {entry.tags.map((tag) => (
+            <span
+              key={tag}
+              className="text-xs px-2 py-0.5 rounded-full bg-lavender/10 text-lavender/80"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="flex gap-4 mt-4 text-sm">
         <button onClick={() => onEdit(entry)} className="text-moonlight/60 hover:text-lavender">
           Edit
