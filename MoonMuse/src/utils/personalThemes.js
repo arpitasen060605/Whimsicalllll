@@ -5,16 +5,17 @@ export const PERSONAL_THEMES = {
     fontBody: 'inherit',
     fixed: false, // follows real moon phase colors
   },
-  midnight: {
-    label: 'Midnight',
-    background: '#05060f',
-    accent: '#8b8fa3',
-    text: '#c9d6ff',
-    surface: 'rgba(255,255,255,0.05)',
-    fontHeading: 'inherit',
-    fontBody: 'inherit',
-    fixed: true,
-  },
+ midnight: {
+  label: 'Midnight',
+  background: '#05060f',
+  accent: '#8b8fa3',
+  accentSoft: '#2a2d3d',
+  text: '#c9d6ff',
+  surface: 'rgba(255,255,255,0.05)',
+  fontHeading: 'inherit',
+  fontBody: 'inherit',
+  fixed: true,
+},
   lavenderSky: {
     label: 'Lavender Sky',
     background: '#1a1533',
