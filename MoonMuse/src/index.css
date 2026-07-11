@@ -7,6 +7,37 @@
 }
 
 body {
-  background-color: var(--color-midnight);
+  background-color: var(--moon-bg, #0b0c2a);
   color: var(--color-moonlight);
+  transition: background-color 1.5s ease;
+}
+
+@keyframes page-turn-in-forward {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-turn-in-backward {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-forward {
+  animation: page-turn-in-forward 1s ease-out;
+}
+
+.page-backward {
+  animation: page-turn-in-backward 1s ease-out;
 }

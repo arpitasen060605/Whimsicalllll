@@ -6,6 +6,7 @@ import Journal from './pages/Journal'
 import Calendar from './pages/Calendar'
 import Dashboard from './pages/Dashboard'
 import DreamJournal from './pages/DreamJournal'
+import ReadingMode from './pages/ReadingMode'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dreams" element={<DreamJournal />} />
+            <Route path="/read/:entryId" element={<ReadingMode />} />
           </Routes>
         </Layout>
       </BrowserRouter>

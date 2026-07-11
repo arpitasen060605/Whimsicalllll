@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { MOODS } from '../utils/moods'
 
 function EntryCard({ entry, onEdit, onDelete }) {
@@ -33,6 +34,9 @@ function EntryCard({ entry, onEdit, onDelete }) {
       )}
 
       <div className="flex gap-4 mt-4 text-sm">
+        <Link to={`/read/${entry.id}`} className="text-moonlight/60 hover:text-lavender">
+          Read
+        </Link>
         <button onClick={() => onEdit(entry)} className="text-moonlight/60 hover:text-lavender">
           Edit
         </button>
