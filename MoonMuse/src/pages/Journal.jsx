@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import EntryForm from '../components/EntryForm'
 import EntryCard from '../components/EntryCard'
+import DailyMuse from '../components/DailyMuse'
 import { getEntries, addEntry, updateEntry, deleteEntry } from '../utils/storage'
 
 function Journal() {
@@ -44,7 +45,7 @@ function Journal() {
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold text-lavender text-center mb-8">📖 Daily Journal</h1>
-
+        <DailyMuse />
       <EntryForm
         key={editingEntry?.id || 'new'}
         onSave={handleSave}
