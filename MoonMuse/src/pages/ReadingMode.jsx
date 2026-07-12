@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getEntries } from '../utils/storage'
+import { fetchEntries } from '../utils/entriesApi'
 import { MOODS } from '../utils/moods'
 import { format } from 'date-fns'
 
@@ -11,7 +11,9 @@ function ReadingMode() {
   const [direction, setDirection] = useState('forward')
 
   useEffect(() => {
-    setEntries(getEntries())
+    fetchEntries()
+      .then((data) => setEntries(data.map((e) => ({ ...e, id: e._id }))))
+      .catch(() => setEntries([]))
   }, [])
 
   const currentIndex = entries.findIndex((e) => e.id === entryId)

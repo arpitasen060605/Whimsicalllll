@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { addMonths, subMonths, format } from 'date-fns'
 import { getCalendarDays, getEntriesForDate } from '../utils/calendarGrid'
-import { getEntries } from '../utils/storage'
+import { fetchEntries } from '../utils/entriesApi'
 import DayCell from '../components/DayCell'
 import EntryCard from '../components/EntryCard'
 
@@ -13,7 +13,9 @@ function Calendar() {
   const [selectedDate, setSelectedDate] = useState(null)
 
   useEffect(() => {
-    setEntries(getEntries())
+    fetchEntries()
+      .then((data) => setEntries(data.map((e) => ({ ...e, id: e._id }))))
+      .catch(() => setEntries([]))
   }, [])
 
   const days = getCalendarDays(currentDate)

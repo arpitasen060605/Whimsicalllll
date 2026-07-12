@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { getEntries } from '../utils/storage'
+import { fetchEntries } from '../utils/entriesApi'
 import { MOODS } from '../utils/moods'
 import {
   getCurrentStreak,
@@ -19,7 +19,9 @@ function Dashboard() {
   const [entries, setEntries] = useState([])
 
   useEffect(() => {
-    setEntries(getEntries())
+    fetchEntries()
+      .then((data) => setEntries(data.map((e) => ({ ...e, id: e._id }))))
+      .catch(() => setEntries([]))
   }, [])
 
   const currentStreak = getCurrentStreak(entries)

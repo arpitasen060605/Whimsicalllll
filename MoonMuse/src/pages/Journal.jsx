@@ -2,31 +2,56 @@ import { useState, useEffect, useMemo } from 'react'
 import EntryForm from '../components/EntryForm'
 import EntryCard from '../components/EntryCard'
 import DailyMuse from '../components/DailyMuse'
-import { getEntries, addEntry, updateEntry, deleteEntry } from '../utils/storage'
+import { useAuth } from '../context/AuthContext'
+import { fetchEntries, createEntry, updateEntryApi, deleteEntryApi } from '../utils/entriesApi'
 
 function Journal() {
+  const { user } = useAuth()
   const [entries, setEntries] = useState([])
   const [editingEntry, setEditingEntry] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    setEntries(getEntries())
-  }, [])
+    if (!user) {
+      setLoading(false)
+      return
+    }
 
-  function handleSave(data) {
-    if (editingEntry) {
-      const updated = updateEntry(editingEntry.id, data)
-      setEntries(updated)
-      setEditingEntry(null)
-    } else {
-      const updated = addEntry(data)
-      setEntries(updated)
+    fetchEntries()
+      .then((data) => {
+        // Normalize _id to id so existing components (which expect `id`) keep working
+        setEntries(data.map((e) => ({ ...e, id: e._id })))
+      })
+      .catch(() => setError('Failed to load entries.'))
+      .finally(() => setLoading(false))
+  }, [user])
+
+  async function handleSave(data) {
+    try {
+      if (editingEntry) {
+        const updated = await updateEntryApi(editingEntry.id, data)
+        setEntries((prev) =>
+          prev.map((e) => (e.id === editingEntry.id ? { ...updated, id: updated._id } : e))
+        )
+        setEditingEntry(null)
+      } else {
+        const created = await createEntry(data)
+        setEntries((prev) => [{ ...created, id: created._id }, ...prev])
+      }
+    } catch (err) {
+      setError('Failed to save entry. Please try again.')
     }
   }
 
-  function handleDelete(id) {
-    const updated = deleteEntry(id)
-    setEntries(updated)
+  async function handleDelete(id) {
+    try {
+      await deleteEntryApi(id)
+      setEntries((prev) => prev.filter((e) => e.id !== id))
+    } catch (err) {
+      setError('Failed to delete entry. Please try again.')
+    }
   }
 
   const filteredEntries = useMemo(() => {
@@ -42,13 +67,34 @@ function Journal() {
     })
   }, [entries, searchQuery])
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--moon-accent)' }}>
+          🌙 Please log in
+        </h1>
+        <p className="opacity-60">Log in or sign up to start writing your journal.</p>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return <div className="text-center py-24 opacity-50">Loading your journal...</div>
+  }
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold text-center mb-8" style={{ color: 'var(--moon-accent)' }}>
-         Daily Journal
+          Daily Journal
       </h1>
 
       <DailyMuse />
+
+      {error && (
+        <p className="text-sm text-center p-2 rounded-lg mb-4" style={{ backgroundColor: 'rgba(220,38,38,0.15)', color: '#f87171' }}>
+          {error}
+        </p>
+      )}
 
       <EntryForm
         key={editingEntry?.id || 'new'}
@@ -60,11 +106,11 @@ function Journal() {
       <div className="mt-10 mb-4">
         <input
           type="text"
-          placeholder="🔍 Search by title, mood, or tag..."
+          placeholder=" Search by title, mood, or tag..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-transparent border rounded-lg px-4 py-2 focus:outline-none"
-          style={{ borderColor: 'var(--moon-accent)', opacity: 1 }}
+          style={{ borderColor: 'var(--moon-accent)' }}
         />
       </div>
 
