@@ -11,6 +11,8 @@ import ReadingMode from './pages/ReadingMode'
 import Settings from './pages/Settings'
 import TimeCapsules from './pages/TimeCapsules'
 import Export from './pages/Export'
+import Signup from './pages/Signup'
+import Login from './pages/Login'
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/capsules" element={<TimeCapsules />} />
               <Route path="/export" element={<Export />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
             </Routes>
           </Layout>
         </BrowserRouter>
