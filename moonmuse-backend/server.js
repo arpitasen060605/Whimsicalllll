@@ -4,6 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 
 const authRoutes = require('./routes/auth')
+const entryRoutes = require('./routes/entries')
 
 const app = express()
 
@@ -11,16 +12,17 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/', (req, res) => {
-  res.json({ message: 'MoonMuse backend is running 🌙' })
+  res.json({ message: 'MoonMuse🌙 backend is running' })
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/entries', entryRoutes)
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err))
+  .then(() => console.log(' Connected to MongoDB'))
+  .catch((err) => console.error(' MongoDB connection error:', err))
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
+  console.log(` Server running on http://localhost:${PORT}`)
 })
