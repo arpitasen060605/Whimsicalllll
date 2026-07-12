@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MoonPhaseProvider } from './context/MoonPhaseContext'
+import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Journal from './pages/Journal'
@@ -13,23 +14,25 @@ import Export from './pages/Export'
 
 function App() {
   return (
-    <MoonPhaseProvider>
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/journal" element={<Journal />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dreams" element={<DreamJournal />} />
-            <Route path="/read/:entryId" element={<ReadingMode />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/capsules" element={<TimeCapsules />} />
-            <Route path="/export" element={<Export />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </MoonPhaseProvider>
+    <AuthProvider>
+      <MoonPhaseProvider>
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/journal" element={<Journal />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dreams" element={<DreamJournal />} />
+              <Route path="/read/:entryId" element={<ReadingMode />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/capsules" element={<TimeCapsules />} />
+              <Route path="/export" element={<Export />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </MoonPhaseProvider>
+    </AuthProvider>
   )
 }
 
