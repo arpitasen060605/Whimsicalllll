@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react'
-import { getEntries } from '../utils/storage'
+import { useAuth } from '../context/AuthContext'
+import { fetchEntries } from '../utils/entriesApi'
 import { exportAsJSON, exportAsMarkdown, exportAsPDF } from '../utils/exportUtils'
 
 function Export() {
+  const { user } = useAuth()
   const [entries, setEntries] = useState([])
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    setEntries(getEntries())
-  }, [])
+    if (!user) return
+    fetchEntries()
+      .then((data) => setEntries(data.map((e) => ({ ...e, id: e._id }))))
+      .catch(() => setEntries([]))
+  }, [user])
 
   function handleExport(exportFn, label) {
     if (entries.length === 0) {
@@ -17,6 +22,17 @@ function Export() {
     }
     exportFn(entries)
     setMessage(`${label} downloaded successfully ✨`)
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--moon-accent)' }}>
+          🌙 Please log in
+        </h1>
+        <p className="opacity-60">Log in to export and back up your journal.</p>
+      </div>
+    )
   }
 
   return (
@@ -28,7 +44,7 @@ function Export() {
         Download your {entries.length} journal {entries.length === 1 ? 'entry' : 'entries'} to keep safe or read elsewhere.
       </p>
       <p className="text-xs opacity-50 mb-10">
-        Your entries currently live only in this browser — exporting is the safest way to back them up.
+        Your entries live securely in the cloud — exporting gives you a personal offline copy too.
       </p>
 
       <div className="grid gap-4">
