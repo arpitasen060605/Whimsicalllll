@@ -30,8 +30,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/capsules" element={<TimeCapsules />} />
               <Route path="/export" element={<Export />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
+        
             </Routes>
           </Layout>
         </BrowserRouter>

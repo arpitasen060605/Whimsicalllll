@@ -1,0 +1,17 @@
+const mongoose = require('mongoose')
+
+const capsuleSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  type: { type: String, required: true }, // 'letter' or 'capsule'
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  unlockDate: { type: Date, required: true },
+  isRead: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+})
+
+module.exports = mongoose.model('Capsule', capsuleSchema)
