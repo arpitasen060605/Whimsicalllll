@@ -19,7 +19,19 @@ function EntryCard({ entry, onEdit, onDelete }) {
         {moodData ? `${moodData.emoji} ${moodData.label}` : entry.mood}
       </p>
       <p className="opacity-90 whitespace-pre-wrap break-words">{entry.content}</p>
-
+       {entry.media?.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {entry.media.map((item, i) => (
+            <div key={i} className="w-24 h-24 rounded-lg overflow-hidden">
+              {item.type === 'video' ? (
+                <video src={item.url} controls className="w-full h-full object-cover" />
+              ) : (
+                <img src={item.url} alt="memory" className="w-full h-full object-cover" />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       {entry.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {entry.tags.map((tag) => (

@@ -19,9 +19,9 @@ router.get('/', async (req, res) => {
 })
 
 // POST /api/entries - create a new entry
-router.post('/', async (req, res) => {
+ router.post('/', async (req, res) => {
   try {
-    const { title, content, mood, tags } = req.body
+    const { title, content, mood, tags, media } = req.body
 
     if (!title || !content || !mood) {
       return res.status(400).json({ error: 'Title, content, and mood are required.' })
@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
       content,
       mood,
       tags: tags || [],
+      media: media || [],
     })
 
     await newEntry.save()
@@ -52,12 +53,12 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Entry not found.' })
     }
 
-    const { title, content, mood, tags } = req.body
+   const { title, content, mood, tags, media } = req.body
     if (title !== undefined) entry.title = title
     if (content !== undefined) entry.content = content
     if (mood !== undefined) entry.mood = mood
     if (tags !== undefined) entry.tags = tags
-
+    if (media !== undefined) entry.media = media
     await entry.save()
     res.json(entry)
   } catch (err) {
