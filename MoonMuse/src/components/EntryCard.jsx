@@ -19,7 +19,7 @@ function EntryCard({ entry, onEdit, onDelete }) {
         {moodData ? `${moodData.emoji} ${moodData.label}` : entry.mood}
       </p>
       <p className="opacity-90 whitespace-pre-wrap break-words">{entry.content}</p>
-       {entry.media?.length > 0 && (
+      {entry.media?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {entry.media.map((item, i) => (
             <div key={i} className="w-24 h-24 rounded-lg overflow-hidden">
