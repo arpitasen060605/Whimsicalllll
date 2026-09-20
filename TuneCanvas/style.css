@@ -7,13 +7,47 @@
 body {
     font-family: 'DM Sans', sans-serif;
     background-color: #F7D9CE;
-    background-image: 
-        radial-gradient(circle at 20% 20%, rgba(237,155,127,0.2), transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(96,150,162,0.15), transparent 40%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: -1;
+    pointer-events: none;
+}
+body::before {
+    width: 500px;
+    height: 500px;
+    background: #C9BFE8;
+    top: -10%;
+    left: -10%;
+    animation: floatBlob1 22s ease-in-out infinite;
+}
+body::after {
+    width: 600px;
+    height: 600px;
+    background: #A8C0CE;
+    bottom: -15%;
+    right: -10%;
+    animation: floatBlob2 28s ease-in-out infinite;
+}
+@keyframes floatBlob1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(60px, 40px) scale(1.1); }
+}
+@keyframes floatBlob2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-50px, -30px) scale(1.15); }
 }
 
 /* ── Page ── */
@@ -43,6 +77,9 @@ body {
 
 
 .card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     background: white;
     border-radius: 20px;
     padding: 32px;
@@ -73,6 +110,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding-right: 90px;
 }
 
 .card-mood {
@@ -453,9 +491,12 @@ body {
     gap: 8px;
     margin: 0 auto 20px;
     padding: 8px 14px;
-    background: white;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-radius: 999px;
-    border: 1px solid #F4C3B6;
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 8px 24px rgba(206,162,168,0.15);
     width: fit-content;
 }
 .room-code-label {
@@ -585,4 +626,12 @@ body {
 }
 .icon-btn.delete:hover {
     background: #D9634F;
+}
+
+@keyframes cardEnter {
+    from { opacity: 0; transform: translateY(20px) rotate(var(--rot, 0deg)) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) rotate(var(--rot, 0deg)) scale(1); }
+}
+.card {
+    animation: cardEnter 0.5s ease backwards;
 }
